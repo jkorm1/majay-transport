@@ -10,6 +10,19 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from "recharts";
 
 interface DashboardProps {
   data: any;
@@ -24,6 +37,16 @@ export default function Dashboard({ data, onRefresh }: DashboardProps) {
     await onRefresh();
     setRefreshing(false);
   };
+
+  // Data for the Financial Summary Pie Chart
+  const financialData = [
+    { name: "Payback", value: data?.totalInvestorPayback || 0 },
+    { name: "Total Expenses", value: data?.totalExpenses || 0 },
+    { name: "Labor", value: data?.totalManagementLabor || 0 },
+    { name: "Maintenance", value: data?.totalMaintenanceFund || 0 },
+  ];
+
+  const COLORS = ["#16a34a", "#dc2626", "#0891b2", "#a855f7"];
 
   return (
     <div className="space-y-6">
@@ -187,61 +210,35 @@ export default function Dashboard({ data, onRefresh }: DashboardProps) {
         <Card>
           <CardHeader>
             <CardTitle>Financial Summary</CardTitle>
-            <CardDescription>Overview of financial performance</CardDescription>
+            <CardDescription>Revenue distribution overview</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <div className="text-sm text-muted-foreground">
-                    Total Expenses
-                  </div>
-                  <div className="text-2xl font-bold text-red-600">
-                    GHS {data?.totalExpenses?.toFixed(2) || 0}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">
-                    Maintenance Cost
-                  </div>
-                  <div className="text-2xl font-bold text-red-600">
-                    GHS {data?.totalMaintenanceCost?.toFixed(2) || 0}
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <div className="text-sm text-muted-foreground">Net Profit</div>
-                <div
-                  className={`text-2xl font-bold ${data?.netProfit >= 0 ? "text-green-600" : "text-red-600"}`}
-                >
-                  GHS {data?.netProfit?.toFixed(2) || 0}
-                </div>
-              </div>
-
-              <div className="pt-4 border-t">
-                <div className="text-sm text-muted-foreground">
-                  Revenue Split Model
-                </div>
-                <div className="mt-2 space-y-1 text-sm">
-                  <div className="flex justify-between">
-                    <span>Investor Payback:</span>
-                    <span className="font-medium">45%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Operating Expenses:</span>
-                    <span className="font-medium">25%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Maintenance Fund:</span>
-                    <span className="font-medium">15%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Management/Labor:</span>
-                    <span className="font-medium">15%</span>
-                  </div>
-                </div>
-              </div>
+            <div style={{ width: "100%", height: 300 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={financialData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={(entry) => `${entry.name}`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {financialData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value: number) => `GHS ${value.toFixed(2)}`}
+                  />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
@@ -250,53 +247,40 @@ export default function Dashboard({ data, onRefresh }: DashboardProps) {
       {data?.driverPerformance && data.driverPerformance.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Driver Performance Summary</CardTitle>
-            <CardDescription>
-              Performance metrics for all drivers
-            </CardDescription>
+            <CardTitle>Driver Performance</CardTitle>
+            <CardDescription>Revenue and payback by driver</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {data.driverPerformance.map((driver: any, index: number) => (
-                <div key={index} className="p-4 border rounded-lg">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-semibold">{driver.driverName}</h3>
-                    <span className="text-sm text-muted-foreground">
-                      {driver.daysWorked} days worked
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <div className="text-muted-foreground">Total Revenue</div>
-                      <div className="font-medium">
-                        GHS {driver.totalRevenue.toFixed(2)}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-muted-foreground">Average Daily</div>
-                      <div className="font-medium">
-                        GHS{" "}
-                        {(driver.totalRevenue / driver.daysWorked).toFixed(2)}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-muted-foreground">Total Payback</div>
-                      <div className="font-medium text-green-600">
-                        GHS {driver.totalPayback.toFixed(2)}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-muted-foreground">
-                        Average Payback
-                      </div>
-                      <div className="font-medium text-green-600">
-                        GHS{" "}
-                        {(driver.totalPayback / driver.daysWorked).toFixed(2)}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            <div style={{ width: "100%", height: 300 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={data.driverPerformance}
+                  margin={{
+                    top: 20,
+                    right: 30,
+                    left: 20,
+                    bottom: 5,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="driverName" />
+                  <YAxis />
+                  <Tooltip
+                    formatter={(value: number) => `GHS ${value.toFixed(2)}`}
+                  />
+                  <Legend />
+                  <Bar
+                    dataKey="totalRevenue"
+                    name="Total Revenue"
+                    fill="#3b82f6"
+                  />
+                  <Bar
+                    dataKey="totalPayback"
+                    name="Total Payback"
+                    fill="#16a34a"
+                  />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
