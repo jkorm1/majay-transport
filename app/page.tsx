@@ -118,7 +118,7 @@ export default function Home() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="bg-muted border border-border rounded-lg p-1 mb-4">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 bg-transparent border-0 bg-muted border border-border gap-1 auto-rows-min pd-3 mb-4">
+            <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 bg-transparent border-0 bg-muted border border-border gap-1 auto-rows-min pd-3 mb-4">
               <TabsTrigger value="dashboard" className="text-xs md:text-sm">
                 Dashboard
               </TabsTrigger>
