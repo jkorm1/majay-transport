@@ -44,6 +44,10 @@ export async function GET() {
       notes: row[8] || ""
     }))
 
+    // Calculate unique days
+const uniqueDays = new Set(dailyRevenue.map(rev => rev.date))
+const uniqueDaysCount = uniqueDays.size
+
     // Process expenses data
     const expenses = (expensesRes.data.values || []).slice(1).map((row) => ({
       id: row[0],
@@ -103,7 +107,8 @@ export async function GET() {
       totalMaintenanceCost,
       netProfit: totalRevenue - totalExpenses - totalMaintenanceCost,
       paybackProgress,
-      driverPerformance
+      driverPerformance,
+      uniqueDaysCount
     }
 
     return Response.json(summary)
