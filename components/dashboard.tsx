@@ -72,6 +72,9 @@ export default function Dashboard({ data, onRefresh }: DashboardProps) {
             <div className="text-2xl font-bold">
               GHS {data?.totalRevenue?.toFixed(2) || 0}
             </div>
+            <p className="text-sm text-green-600 mt-1">
+              in {data?.uniqueDaysCount || 0} days
+            </p>
           </CardContent>
         </Card>
 

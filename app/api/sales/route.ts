@@ -74,6 +74,8 @@ export async function GET() {
     })
 
     const rows = response.data.values || []
+    const uniqueDays = new Set(rows.slice(1).map((row) => row[1])) // row[1] is the date column
+
     const revenueRecords = rows.slice(1).map((row) => ({
       id: row[0],
       date: row[1],
@@ -86,9 +88,12 @@ export async function GET() {
       notes: row[8] || ""
     }))
 
-    return Response.json(revenueRecords)
-  } catch (error) {
-    console.error("Failed to fetch revenue records:", error)
-    return Response.json({ error: "Failed to fetch revenue records" }, { status: 500 })
-  }
-}
+    return Response.json({
+          records: revenueRecords,
+          uniqueDaysCount: uniqueDays.size
+        })
+      } catch (error) {
+        console.error("Failed to fetch revenue records:", error)
+        return Response.json({ error: "Failed to fetch revenue records" }, { status: 500 })
+      }
+    }
