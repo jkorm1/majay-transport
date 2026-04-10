@@ -37,13 +37,16 @@ export default function RevenueTable() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
+      // Modify data processing logic in revenue-table.tsx
       const data = await response.json();
 
-      // Ensure data is an array
+      // Modify this part of code to correctly handle the API returned data structure
       if (Array.isArray(data)) {
         setRevenueRecords(data);
       } else if (data && Array.isArray(data.data)) {
         setRevenueRecords(data.data);
+      } else if (data && Array.isArray(data.records)) {
+        setRevenueRecords(data.records);
       } else {
         console.error("Unexpected data format:", data);
         setRevenueRecords([]);
