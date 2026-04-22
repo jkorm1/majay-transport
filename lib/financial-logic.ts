@@ -2,19 +2,19 @@
 
 export interface RevenueSplit {
   revenue: number;
-  investorPayback: number; // 45% of revenue
-  operatingExpenses: number; // 25% of revenue
-  maintenanceFund: number; // 15% of revenue
-  managementLabor: number; // 15% of revenue
+  investorPayback: number; // 40% of revenue
+  operatingExpenses: number; // 45% of revenue
+  maintenanceFund: number; // 5% of revenue
+  managementLabor: number; // 10% of revenue
 }
 
 export function calculateRevenueSplit(revenue: number): RevenueSplit {
   return {
     revenue,
-    investorPayback: revenue * 0.45,
-    operatingExpenses: revenue * 0.25,
-    maintenanceFund: revenue * 0.15,
-    managementLabor: revenue * 0.15
+    investorPayback: revenue * 0.40,
+    operatingExpenses: revenue * 0.45,
+    maintenanceFund: revenue * 0.05,
+    managementLabor: revenue * 0.10
   };
 }
 

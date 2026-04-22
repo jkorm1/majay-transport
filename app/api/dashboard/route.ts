@@ -1,7 +1,7 @@
 // majay/app/api/dashboard/route.ts
 import { google } from "googleapis"
 import { JWT } from "google-auth-library"
-import { calculatePaybackProgress } from "@/lib/financial-logic"
+import { calculatePaybackProgress, calculateRevenueSplit } from "@/lib/financial-logic"
 
 const TOTAL_INVESTMENT = 90000; // GH₵ 90,000 investment from Michael Quainoo Mallen
 
@@ -45,8 +45,8 @@ export async function GET() {
     }))
 
     // Calculate unique days
-const uniqueDays = new Set(dailyRevenue.map(rev => rev.date))
-const uniqueDaysCount = uniqueDays.size
+    const uniqueDays = new Set(dailyRevenue.map(rev => rev.date))
+    const uniqueDaysCount = uniqueDays.size
 
     // Process expenses data
     const expenses = (expensesRes.data.values || []).slice(1).map((row) => ({
@@ -67,12 +67,17 @@ const uniqueDaysCount = uniqueDays.size
       status: row[4] || "Pending"
     }))
 
-    // Calculate totals
+    // Calculate total revenue
     const totalRevenue = dailyRevenue.reduce((sum, rev) => sum + rev.revenue, 0)
-    const totalInvestorPayback = dailyRevenue.reduce((sum, rev) => sum + rev.investorPayback, 0)
-    const totalOperatingExpenses = dailyRevenue.reduce((sum, rev) => sum + rev.operatingExpenses, 0)
-    const totalMaintenanceFund = dailyRevenue.reduce((sum, rev) => sum + rev.maintenanceFund, 0)
-    const totalManagementLabor = dailyRevenue.reduce((sum, rev) => sum + rev.managementLabor, 0)
+    
+    // Calculate financial metrics based on total revenue
+    const revenueSplit = calculateRevenueSplit(totalRevenue)
+    const totalInvestorPayback = revenueSplit.investorPayback
+    const totalOperatingExpenses = revenueSplit.operatingExpenses
+    const totalMaintenanceFund = revenueSplit.maintenanceFund
+    const totalManagementLabor = revenueSplit.managementLabor
+    
+    // Calculate other totals
     const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0)
     const totalMaintenanceCost = maintenance.reduce((sum, m) => sum + m.cost, 0)
 
@@ -80,22 +85,43 @@ const uniqueDaysCount = uniqueDays.size
     const paybackProgress = calculatePaybackProgress(TOTAL_INVESTMENT, totalInvestorPayback)
 
     // Calculate driver performance
+  // Calculate driver performance
     const driverPerformance = dailyRevenue.reduce((acc, rev) => {
       const existing = acc.find(d => d.driverName === rev.driverName)
       if (existing) {
         existing.totalRevenue += rev.revenue
-        existing.totalPayback += rev.investorPayback
+        existing.employeeShare += rev.revenue * 0.10 // 10% of revenue for employee share
         existing.daysWorked += 1
       } else {
         acc.push({
           driverName: rev.driverName,
           totalRevenue: rev.revenue,
-          totalPayback: rev.investorPayback,
+          employeeShare: rev.revenue * 0.10, // 10% of revenue for employee share
           daysWorked: 1
         })
       }
       return acc
-    }, [] as { driverName: string; totalRevenue: number; totalPayback: number; daysWorked: number }[])
+    }, [] as { driverName: string; totalRevenue: number; employeeShare: number; daysWorked: number }[])
+
+    const expenseByCategory = expenses.reduce((acc, exp) => {
+      const existing = acc.find(item => item.category === exp.category)
+      if (existing) {
+        existing.amount += exp.amount
+      } else {
+        acc.push({
+          category: exp.category,
+          amount: exp.amount
+        })
+      }
+      return acc
+    }, [] as { category: string; amount: number }[])
+
+    // Convert to format for the chart with percentages
+    const expenseBreakdown = expenseByCategory.map(item => ({
+      name: item.category,
+      value: item.amount,
+      percentage: (item.amount / totalExpenses) * 100
+    }))
 
     const summary = {
       totalRevenue,
@@ -108,7 +134,8 @@ const uniqueDaysCount = uniqueDays.size
       netProfit: totalRevenue - totalExpenses - totalMaintenanceCost,
       paybackProgress,
       driverPerformance,
-      uniqueDaysCount
+      uniqueDaysCount,
+      expenseBreakdown 
     }
 
     return Response.json(summary)

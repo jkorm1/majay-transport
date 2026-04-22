@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import RealisticFinancialSummary from "@/components/realistic-financial-summary";
 import {
   PieChart,
   Pie,
@@ -40,10 +41,10 @@ export default function Dashboard({ data, onRefresh }: DashboardProps) {
 
   // Data for the Financial Summary Pie Chart
   const financialData = [
-    { name: "Payback", value: data?.totalInvestorPayback || 0 },
-    { name: "Total Expenses", value: data?.totalExpenses || 0 },
-    { name: "Labor", value: data?.totalManagementLabor || 0 },
-    { name: "Maintenance", value: data?.totalMaintenanceFund || 0 },
+    { name: "Payback", value: data?.totalInvestorPayback ?? 0 },
+    { name: "Total Expenses", value: data?.totalExpenses ?? 0 },
+    { name: "Labor", value: data?.totalManagementLabor ?? 0 },
+    { name: "Maintenance", value: data?.totalMaintenanceFund ?? 0 },
   ];
 
   const COLORS = ["#16a34a", "#dc2626", "#0891b2", "#a855f7"];
@@ -88,7 +89,7 @@ export default function Dashboard({ data, onRefresh }: DashboardProps) {
             <div className="text-2xl font-bold text-green-600">
               GHS {data?.totalInvestorPayback?.toFixed(2) || 0}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">45% of revenue</p>
+            <p className="text-xs text-muted-foreground mt-1">40% of revenue</p>
           </CardContent>
         </Card>
 
@@ -102,7 +103,7 @@ export default function Dashboard({ data, onRefresh }: DashboardProps) {
             <div className="text-2xl font-bold text-orange-600">
               GHS {data?.totalOperatingExpenses?.toFixed(2) || 0}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">25% of revenue</p>
+            <p className="text-xs text-muted-foreground mt-1">45% of revenue</p>
           </CardContent>
         </Card>
 
@@ -116,7 +117,7 @@ export default function Dashboard({ data, onRefresh }: DashboardProps) {
             <div className="text-2xl font-bold text-purple-600">
               GHS {data?.totalMaintenanceFund?.toFixed(2) || 0}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">15% of revenue</p>
+            <p className="text-xs text-muted-foreground mt-1">5% of revenue</p>
           </CardContent>
         </Card>
 
@@ -130,7 +131,7 @@ export default function Dashboard({ data, onRefresh }: DashboardProps) {
             <div className="text-2xl font-bold text-cyan-600">
               GHS {data?.totalManagementLabor?.toFixed(2) || 0}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">15% of revenue</p>
+            <p className="text-xs text-muted-foreground mt-1">10% of revenue</p>
           </CardContent>
         </Card>
 
@@ -148,7 +149,7 @@ export default function Dashboard({ data, onRefresh }: DashboardProps) {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1  gap-4">
         <Card>
           <CardHeader>
             <CardTitle>Investment Payback Progress</CardTitle>
@@ -209,7 +210,6 @@ export default function Dashboard({ data, onRefresh }: DashboardProps) {
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader>
             <CardTitle>Financial Summary</CardTitle>
@@ -245,6 +245,17 @@ export default function Dashboard({ data, onRefresh }: DashboardProps) {
             </div>
           </CardContent>
         </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Realistic Financial Summary</CardTitle>
+            <CardDescription>
+              Actual financial breakdown based on expense categories
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <RealisticFinancialSummary />
+          </CardContent>
+        </Card>{" "}
       </div>
 
       {data?.driverPerformance && data.driverPerformance.length > 0 && (
@@ -278,9 +289,9 @@ export default function Dashboard({ data, onRefresh }: DashboardProps) {
                     fill="#3b82f6"
                   />
                   <Bar
-                    dataKey="totalPayback"
-                    name="Total Payback"
-                    fill="#16a34a"
+                    dataKey="employeeShare"
+                    name="Employee Share (10%)"
+                    fill="#f59e0b"
                   />
                 </BarChart>
               </ResponsiveContainer>

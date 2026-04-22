@@ -172,22 +172,22 @@ export default function RevenueForm({ onSuccess }: RevenueFormProps) {
                   GHS {preview.revenue.toFixed(2)}
                 </div>
 
-                <div>Investor Payback (45%):</div>
+                <div>Investor Payback (40%):</div>
                 <div className="text-right font-medium text-green-600">
                   GHS {preview.investorPayback.toFixed(2)}
                 </div>
 
-                <div>Operating Expenses (25%):</div>
+                <div>Operating Expenses (45%):</div>
                 <div className="text-right font-medium text-orange-600">
                   GHS {preview.operatingExpenses.toFixed(2)}
                 </div>
 
-                <div>Maintenance Fund (15%):</div>
+                <div>Maintenance Fund (5%):</div>
                 <div className="text-right font-medium text-purple-600">
                   GHS {preview.maintenanceFund.toFixed(2)}
                 </div>
 
-                <div>Management/Labor (15%):</div>
+                <div>Management/Labor (10%):</div>
                 <div className="text-right font-medium text-cyan-600">
                   GHS {preview.managementLabor.toFixed(2)}
                 </div>

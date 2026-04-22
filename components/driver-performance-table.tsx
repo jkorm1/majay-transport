@@ -66,8 +66,10 @@ export default function DriverPerformanceTable() {
                 <TableHead className="text-right">Days Worked</TableHead>
                 <TableHead className="text-right">Total Revenue</TableHead>
                 <TableHead className="text-right">Avg Daily</TableHead>
-                <TableHead className="text-right">Total Payback</TableHead>
-                <TableHead className="text-right">Avg Payback</TableHead>
+                <TableHead className="text-right">
+                  Employee Share (10%)
+                </TableHead>
+                <TableHead className="text-right">Avg Employee Share</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -95,11 +97,14 @@ export default function DriverPerformanceTable() {
                     <TableCell className="text-right">
                       GHS {(driver.totalRevenue / driver.daysWorked).toFixed(2)}
                     </TableCell>
-                    <TableCell className="text-right text-green-600">
-                      GHS {driver.totalPayback.toFixed(2)}
+                    <TableCell className="text-right text-amber-600">
+                      GHS {(driver.employeeShare || 0).toFixed(2)}
                     </TableCell>
-                    <TableCell className="text-right text-green-600">
-                      GHS {(driver.totalPayback / driver.daysWorked).toFixed(2)}
+                    <TableCell className="text-right text-amber-600">
+                      GHS{" "}
+                      {(
+                        (driver.employeeShare || 0) / driver.daysWorked
+                      ).toFixed(2)}
                     </TableCell>
                   </TableRow>
                 ))

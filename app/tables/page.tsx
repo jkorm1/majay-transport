@@ -132,7 +132,7 @@ export default function TablesPage() {
                 GHS {summary.totalInvestorPayback.toFixed(2)}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {summary.paybackProgress.percentage.toFixed(1)}% of GHS 90,000
+                40% of revenue
               </p>
             </CardContent>
           </Card>
@@ -148,7 +148,7 @@ export default function TablesPage() {
                 GHS {summary.totalOperatingExpenses.toFixed(2)}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                25% of revenue
+                45% of revenue
               </p>
             </CardContent>
           </Card>
@@ -164,7 +164,7 @@ export default function TablesPage() {
                 GHS {summary.totalMaintenanceFund.toFixed(2)}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                15% of revenue
+                5% of revenue
               </p>
             </CardContent>
           </Card>
@@ -180,7 +180,7 @@ export default function TablesPage() {
                 GHS {summary.totalManagementLabor.toFixed(2)}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                15% of revenue
+                10% of revenue
               </p>
             </CardContent>
           </Card>
