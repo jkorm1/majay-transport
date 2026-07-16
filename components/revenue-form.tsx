@@ -124,6 +124,7 @@ export default function RevenueForm({ onSuccess }: RevenueFormProps) {
                 <option value="Joseph Korm">Joseph Korm</option>
                 <option value="Nathaniel Obeng">Nathaniel Obeng</option>
                 <option value="Adu Kofi Owusu">Adu Kofi Owusu</option>
+                <option value="Stephene Apaw Boadi">Stephene Apaw Boadi</option>
               </select>
             </div>
 

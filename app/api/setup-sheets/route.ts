@@ -88,6 +88,31 @@ export async function POST(request: NextRequest) {
             "Status"
           ],
         },
+        {
+          name: "Enrollments",
+          headers: [
+            "Timestamp",
+            "Full Name",
+            "Phone",
+            "Email",
+            "Course",
+            "Start Date",
+            "Note"
+          ],
+        },
+         {
+          name: "Ride Requests",
+          headers: [
+            "Timestamp",
+            "Name",
+            "Phone",
+            "Location",
+            "Pickup Time",
+            "Price",
+            "Notes"
+          ],
+        },
+        
       ]
 
       for (const config of sheetConfigs) {
