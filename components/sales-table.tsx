@@ -94,6 +94,14 @@ export default function SalesTable() {
     .sort((a, b) => {
       const aValue = a[sortField];
       const bValue = b[sortField];
+      // Special handling for date sorting
+      if (sortField === "date") {
+        const dateA = new Date(aValue as string);
+        const dateB = new Date(bValue as string);
+        return sortDirection === "asc"
+          ? dateA.getTime() - dateB.getTime()
+          : dateB.getTime() - dateA.getTime();
+      }
       if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
       if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
       return 0;

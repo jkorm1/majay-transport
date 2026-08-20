@@ -22,6 +22,8 @@ export default function RevenueTable() {
   const [revenueRecords, setRevenueRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sortField, setSortField] = useState<string>("date");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
   useEffect(() => {
     fetchRevenueRecords();
@@ -60,6 +62,26 @@ export default function RevenueTable() {
     }
   };
 
+  const handleSort = (field: string) => {
+    if (field === sortField) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
+
+  const sortedRevenueRecords = [...revenueRecords].sort((a, b) => {
+    if (sortField === "date") {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      return sortDirection === "asc"
+        ? dateA.getTime() - dateB.getTime()
+        : dateB.getTime() - dateA.getTime();
+    }
+    return 0;
+  });
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -89,7 +111,15 @@ export default function RevenueTable() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Date</TableHead>
+                <TableHead
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => handleSort("date")}
+                >
+                  Date{" "}
+                  {sortField === "date" &&
+                    (sortDirection === "asc" ? "↑" : "↓")}
+                </TableHead>
+
                 <TableHead>Driver</TableHead>
                 <TableHead className="text-right">Revenue</TableHead>
                 <TableHead className="text-right">Investor</TableHead>
@@ -110,7 +140,7 @@ export default function RevenueTable() {
                   </TableCell>
                 </TableRow>
               ) : (
-                revenueRecords.map((record) => (
+                sortedRevenueRecords.map((record) => (
                   <TableRow key={record.id}>
                     <TableCell>{record.date}</TableCell>
                     <TableCell>{record.driverName}</TableCell>
