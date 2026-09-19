@@ -62,6 +62,16 @@ export function LayoutClient({ children }: { children: React.ReactNode }) {
             </Link>
 
             <Link
+              href="/tracking"
+              className={`transition-colors hover:text-foreground/80 hover:underline ${
+                usePathname() === "/tracking"
+                  ? "text-foreground border-b-2 border-primary"
+                  : "text-foreground/60"
+              }`}
+            >
+              Tracking
+            </Link>
+            <Link
               href="/setup"
               className={`transition-colors hover:text-foreground/80 hover:underline ${
                 usePathname() === "/setup"

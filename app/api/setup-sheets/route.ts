@@ -3,6 +3,12 @@ import { type NextRequest, NextResponse } from "next/server"
 import { google } from "googleapis"
 import { JWT } from "google-auth-library"
 
+type SheetConfig = {
+  name: string
+  headers: string[]
+  gridProperties?: { rowCount: number; columnCount: number }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { sheetId: inputSheetId, credentials } = await request.json()
@@ -42,7 +48,7 @@ export async function POST(request: NextRequest) {
           },
         })
         spreadsheetId = newSheet.data.spreadsheetId
-      } catch (createError) {
+      } catch (createError: any) {
         console.error("Error creating spreadsheet:", createError)
         return NextResponse.json({ error: `Failed to create spreadsheet: ${createError.message}` }, { status: 500 })
       }
@@ -50,9 +56,8 @@ export async function POST(request: NextRequest) {
 
     try {
       const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId })
-      const existingSheetNames = spreadsheet.data.sheets?.map((s) => s.properties?.title) || []
 
-      const sheetConfigs = [
+      const sheetConfigs: SheetConfig[] = [
         {
           name: "Daily Revenue",
           headers: [
@@ -100,7 +105,7 @@ export async function POST(request: NextRequest) {
             "Note"
           ],
         },
-         {
+        {
           name: "Ride Requests",
           headers: [
             "Timestamp",
@@ -112,36 +117,151 @@ export async function POST(request: NextRequest) {
             "Notes"
           ],
         },
-        
+        {
+          name: "Tracking",
+          // 1 date column + 18 day rides + 17 night rides = 36 columns (A:AJ).
+          // A new sheet defaults to 26 columns, so this must be set explicitly.
+          gridProperties: { rowCount: 100, columnCount: 36 },
+          headers: [
+            "Date",
+            ...Array.from({ length: 18 }, (_, i) => `Day Ride ${i + 1}`),
+            ...Array.from({ length: 17 }, (_, i) => `Night Ride ${i + 1}`),
+          ],
+        },
       ]
 
       for (const config of sheetConfigs) {
-        if (!existingSheetNames.includes(config.name)) {
-          await sheets.spreadsheets.batchUpdate({
+        // Look for the sheet in the snapshot we fetched above.
+        let sheetId: number | null =
+          spreadsheet.data.sheets?.find((s) => s.properties?.title === config.name)
+            ?.properties?.sheetId ?? null
+
+        if (sheetId === null) {
+          // Create it, and capture the real sheetId from the reply.
+          const addRes = await sheets.spreadsheets.batchUpdate({
             spreadsheetId,
             requestBody: {
               requests: [{
                 addSheet: {
-                  properties: { 
+                  properties: {
                     title: config.name,
+                    ...(config.gridProperties ? { gridProperties: config.gridProperties } : {}),
                   },
                 },
               }],
             },
           })
+          sheetId = addRes.data.replies?.[0]?.addSheet?.properties?.sheetId ?? null
+        } else if (config.gridProperties) {
+          // Sheet already exists — make sure it is wide enough.
+          const existing = spreadsheet.data.sheets?.find(
+            (s) => s.properties?.title === config.name
+          )
+          const currentCols = existing?.properties?.gridProperties?.columnCount ?? 0
+          if (currentCols < config.gridProperties.columnCount) {
+            await sheets.spreadsheets.batchUpdate({
+              spreadsheetId,
+              requestBody: {
+                requests: [{
+                  updateSheetProperties: {
+                    properties: {
+                      sheetId,
+                      gridProperties: { columnCount: config.gridProperties.columnCount },
+                    },
+                    fields: "gridProperties.columnCount",
+                  },
+                }],
+              },
+            })
+          }
+        }
 
-          await sheets.spreadsheets.values.update({
+        // Write (or refresh) the header row.
+        await sheets.spreadsheets.values.update({
+          spreadsheetId,
+          range: `${config.name}!A1`,
+          valueInputOption: "USER_ENTERED",
+          requestBody: { values: [config.headers] },
+        })
+
+        // Tracking sheet gets real checkboxes + green fill on ticked cells.
+        if (config.name === "Tracking" && sheetId !== null) {
+          const tickRange = {
+            sheetId,
+            startRowIndex: 1,
+            endRowIndex: 1000,
+            startColumnIndex: 1,
+            endColumnIndex: 36,
+          }
+
+          await sheets.spreadsheets.batchUpdate({
             spreadsheetId,
-            range: `${config.name}!A1`,
-            valueInputOption: "USER_ENTERED",
-            requestBody: { values: [config.headers] },
-          })
-        } else {
-          await sheets.spreadsheets.values.update({
-            spreadsheetId,
-            range: `${config.name}!A1`,
-            valueInputOption: "USER_ENTERED",
-            requestBody: { values: [config.headers] },
+            requestBody: {
+              requests: [
+                // Click-to-tick checkboxes directly in the sheet
+                {
+                  setDataValidation: {
+                    range: tickRange,
+                    rule: {
+                      condition: { type: "BOOLEAN" },
+                      strict: true,
+                      showCustomUi: true,
+                    },
+                  },
+                },
+                // Green background wherever a box is ticked
+                {
+                  addConditionalFormatRule: {
+                    rule: {
+                      ranges: [tickRange],
+                      booleanRule: {
+                        condition: {
+                          type: "CUSTOM_FORMULA",
+                          values: [{ userEnteredValue: "=B2=TRUE" }],
+                        },
+                        format: {
+                          backgroundColor: { red: 0.72, green: 0.93, blue: 0.75 },
+                          textFormat: { bold: true },
+                        },
+                      },
+                    },
+                    index: 0,
+                  },
+                },
+                // Freeze the header row and the date column
+                {
+                  updateSheetProperties: {
+                    properties: {
+                      sheetId,
+                      gridProperties: { frozenRowCount: 1, frozenColumnCount: 1 },
+                    },
+                    fields:
+                      "gridProperties.frozenRowCount,gridProperties.frozenColumnCount",
+                  },
+                },
+                // Centre the tick marks
+                {
+                  repeatCell: {
+                    range: tickRange,
+                    cell: { userEnteredFormat: { horizontalAlignment: "CENTER" } },
+                    fields: "userEnteredFormat.horizontalAlignment",
+                  },
+                },
+                // Narrow the 35 tick columns so the whole day fits on screen
+                {
+                  updateDimensionProperties: {
+                    range: {
+                      sheetId,
+                      dimension: "COLUMNS",
+                      startIndex: 1,
+                      endIndex: 36,
+                    },
+                    properties: { pixelSize: 44 },
+                    fields: "pixelSize",
+                  },
+                },
+              ],
+            },
           })
         }
       }
@@ -151,11 +271,11 @@ export async function POST(request: NextRequest) {
         message: "Google Sheets setup complete! A new sheet was created and structured automatically.",
         sheetId: spreadsheetId,
       })
-    } catch (sheetError) {
+    } catch (sheetError: any) {
       console.error("Error setting up spreadsheet:", sheetError)
       return NextResponse.json({ error: `Failed to setup spreadsheet: ${sheetError.message}` }, { status: 500 })
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("[Setup] Error:", error)
     return NextResponse.json({ error: `Setup failed: ${error.message}` }, { status: 500 })
   }
