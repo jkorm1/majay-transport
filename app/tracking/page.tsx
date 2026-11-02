@@ -1,6 +1,7 @@
 "use client";
 
 import TrackingPage from "@/components/tracking-page";
+import AvailabilityControl from "@/components/availability-control";
 
 export default function Tracking() {
   return (
@@ -13,6 +14,7 @@ export default function Tracking() {
           Track your daily rides and monitor progress toward your GHS 600 target
         </p>
       </div>
+      <AvailabilityControl />
       <TrackingPage />
     </div>
   );
