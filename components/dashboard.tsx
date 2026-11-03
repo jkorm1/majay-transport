@@ -52,7 +52,9 @@ export default function Dashboard({ data, onRefresh }: DashboardProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">MaJay Transportation Dashboard</h2>
+        <h2 className="text-2xl font-bold">
+          Stardrive Transportation Dashboard
+        </h2>
         <button
           onClick={handleRefresh}
           disabled={refreshing}

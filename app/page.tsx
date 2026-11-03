@@ -40,7 +40,7 @@ export default function Home() {
       <div className="border-b border-border bg-card">
         <div className="mx-auto max-w-7xl px-4 py-6">
           <h1 className="text-3xl font-bold text-foreground">
-            MaJay Transportation
+            Stardrive Transportation
             {investorName && (
               <span className="ml-2 text-sm text-muted-foreground">
                 (Welcome, {investorName})

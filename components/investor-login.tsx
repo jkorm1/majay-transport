@@ -63,7 +63,7 @@ export function InvestorLogin() {
               </div>
             </div>
             <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-              Majay Transport
+              Stardrive Transport
             </CardTitle>
             <p className="text-sm text-muted-foreground text-center">
               Enter your password to access the system
