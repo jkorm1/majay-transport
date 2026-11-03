@@ -19,7 +19,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Stardrive Transportation",
+  title: "Stardrive System",
   description: "Stardrive Transport System",
   generator: "",
   icons: {
