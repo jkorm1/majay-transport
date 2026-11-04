@@ -112,7 +112,8 @@ export async function POST(request: NextRequest) {
             "Timestamp",
             "Name",
             "Phone",
-            "Location",
+            "Pickup point",
+            "Destination",
             "Pickup Time",
             "Price",
             "Notes"
