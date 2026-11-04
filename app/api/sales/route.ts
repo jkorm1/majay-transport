@@ -20,6 +20,9 @@ export async function POST(request: Request) {
       day: '2-digit'
     })
 
+     // Extract kilometers from the request data
+    const kilometers = Number(data.kilometers) || 0;
+
     // Calculate revenue split
     const revenueData = calculateDailyRevenue(
       data.driverName,
@@ -33,6 +36,7 @@ export async function POST(request: Request) {
       revenueData.date,
       revenueData.driverName,
       revenueData.revenue,
+      kilometers,
       revenueData.investorPayback,
       revenueData.operatingExpenses,
       revenueData.maintenanceFund,
@@ -42,7 +46,7 @@ export async function POST(request: Request) {
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.NEXT_PUBLIC_GOOGLE_SHEET_ID,
-      range: "Daily Revenue!A:I",
+      range: "Daily Revenue!A:J",
       valueInputOption: "USER_ENTERED",
       insertDataOption: "INSERT_ROWS",
       requestBody: { values: [row] }
@@ -70,7 +74,7 @@ export async function GET() {
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.NEXT_PUBLIC_GOOGLE_SHEET_ID,
-      range: "Daily Revenue!A:I"
+      range: "Daily Revenue!A:J"
     })
 
     const rows = response.data.values || []
@@ -81,11 +85,12 @@ export async function GET() {
       date: row[1],
       driverName: row[2],
       revenue: Number(row[3]),
-      investorPayback: Number(row[4]),
-      operatingExpenses: Number(row[5]),
-      maintenanceFund: Number(row[6]),
-      managementLabor: Number(row[7]),
-      notes: row[8] || ""
+      kilometers: Number(row[4]) || 0,
+      investorPayback: Number(row[5]),
+      operatingExpenses: Number(row[6]),
+      maintenanceFund: Number(row[7]),
+      managementLabor: Number(row[8]),
+      notes: row[9] || ""
     }))
 
     return Response.json({

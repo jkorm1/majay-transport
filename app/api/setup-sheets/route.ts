@@ -65,6 +65,7 @@ export async function POST(request: NextRequest) {
             "Date",
             "Driver Name",
             "Revenue",
+            "Kilometers",
             "Investor Payback (40%)",
             "Operating Expenses (45%)",
             "Maintenance Fund (5%)",

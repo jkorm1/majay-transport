@@ -122,6 +122,7 @@ export default function RevenueTable() {
 
                 <TableHead>Driver</TableHead>
                 <TableHead className="text-right">Revenue</TableHead>
+                <TableHead className="text-right">Kilometers</TableHead>
                 <TableHead className="text-right">Investor</TableHead>
                 <TableHead className="text-right">Ops</TableHead>
                 <TableHead className="text-right">Maint</TableHead>
@@ -133,7 +134,7 @@ export default function RevenueTable() {
               {!revenueRecords || revenueRecords.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={8}
+                    colSpan={9}
                     className="text-center text-muted-foreground"
                   >
                     No revenue records found
@@ -146,6 +147,9 @@ export default function RevenueTable() {
                     <TableCell>{record.driverName}</TableCell>
                     <TableCell className="text-right">
                       GHS {record.revenue?.toFixed(2) || "0.00"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {record.kilometers?.toFixed(1) || "0.0"} km
                     </TableCell>
                     <TableCell className="text-right text-green-600">
                       GHS {record.investorPayback?.toFixed(2) || "0.00"}

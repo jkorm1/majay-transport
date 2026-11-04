@@ -23,6 +23,7 @@ export default function RevenueForm({ onSuccess }: RevenueFormProps) {
   const [formData, setFormData] = useState({
     driverName: "",
     revenue: "",
+    kilometers: "",
     date: new Date().toISOString().split("T")[0],
     notes: "",
   });
@@ -75,6 +76,7 @@ export default function RevenueForm({ onSuccess }: RevenueFormProps) {
         setFormData({
           driverName: "",
           revenue: "",
+          kilometers: "",
           date: new Date().toISOString().split("T")[0],
           notes: "",
         });
@@ -136,6 +138,19 @@ export default function RevenueForm({ onSuccess }: RevenueFormProps) {
                 type="number"
                 step="0.01"
                 value={formData.revenue}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="kilometers">Kilometers</Label>
+              <Input
+                id="kilometers"
+                name="kilometers"
+                type="number"
+                step="0.1"
+                value={formData.kilometers}
                 onChange={handleInputChange}
                 required
               />
